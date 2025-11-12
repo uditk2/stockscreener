@@ -10,15 +10,16 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install TA-Lib
-RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
-    tar -xzf ta-lib-0.4.0-src.tar.gz && \
+# Download and install TA-Lib v0.6.4 (latest version with aarch64/ARM64 support)
+# Using the latest version from GitHub instead of the outdated 0.4.0 from 2006
+RUN wget https://github.com/TA-Lib/ta-lib/releases/download/v0.6.4/ta-lib-0.6.4-src.tar.gz && \
+    tar -xzf ta-lib-0.6.4-src.tar.gz && \
     cd ta-lib/ && \
     ./configure --prefix=/usr && \
     make && \
     make install && \
     cd .. && \
-    rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
+    rm -rf ta-lib ta-lib-0.6.4-src.tar.gz
 
 # Copy requirements first for better caching
 COPY requirements.txt .
