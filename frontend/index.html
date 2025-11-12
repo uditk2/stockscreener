@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Screener - Breakout Detection</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18"/>
+                        <path d="M18 9l-5 5-3-3-4 4"/>
+                    </svg>
+                    <h1 class="logo-text">Stock Screener</h1>
+                </div>
+                <div class="status-badge" id="healthStatus">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Checking...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+
+            <!-- Workflow Steps -->
+            <div class="workflow-section">
+                <h2 class="section-title">Screening Workflow</h2>
+
+                <!-- Step 1: Initialize -->
+                <div class="workflow-card" id="initializeCard">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-info">
+                            <h3 class="step-title">Initialize Stock List</h3>
+                            <p class="step-description">Fetch Indian stocks from NSE (NIFTY 50, 500, BANK, IT, PHARMA, AUTO)</p>
+                        </div>
+                    </div>
+                    <div class="step-content">
+                        <div class="stats-row" id="initializeStats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="totalStocks">-</span>
+                                <span class="stat-label">Total Stocks</span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" id="initializeBtn">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 4v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6H6c-1.1 0-2 .9-2 2z"/>
+                                    <path d="M14 2v6h6"/>
+                                </svg>
+                                Initialize Stocks
+                            </button>
+                            <button class="btn btn-secondary" id="viewStocksBtn">View List</button>
+                        </div>
+                        <div class="loading-bar" id="initializeLoading">
+                            <div class="loading-progress"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Screen All -->
+                <div class="workflow-card" id="screenCard">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-info">
+                            <h3 class="step-title">Screen All Stocks</h3>
+                            <p class="step-description">Analyze technical indicators and detect breakout signals using AI</p>
+                        </div>
+                    </div>
+                    <div class="step-content">
+                        <div class="stats-row" id="screenStats">
+                            <div class="stat-item">
+                                <span class="stat-value" id="processedCount">0</span>
+                                <span class="stat-label">Processed</span>
+                            </div>
+                            <div class="stat-item stat-success">
+                                <span class="stat-value" id="breakoutCount">0</span>
+                                <span class="stat-label">Breakouts</span>
+                            </div>
+                            <div class="stat-item stat-warning">
+                                <span class="stat-value" id="errorCount">0</span>
+                                <span class="stat-label">Errors</span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" id="screenBtn">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="M21 21l-4.35-4.35"/>
+                                </svg>
+                                Start Screening
+                            </button>
+                            <div class="input-group">
+                                <label for="concurrency">Concurrent:</label>
+                                <input type="number" id="concurrency" value="5" min="1" max="20">
+                            </div>
+                        </div>
+                        <div class="loading-bar" id="screenLoading">
+                            <div class="loading-progress" id="screenProgress"></div>
+                            <span class="progress-text" id="progressText">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Radar View -->
+                <div class="workflow-card" id="radarCard">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <div class="step-info">
+                            <h3 class="step-title">Stocks on Radar</h3>
+                            <p class="step-description">Stocks with detected breakout signals (confidence > 60%)</p>
+                        </div>
+                    </div>
+                    <div class="step-content">
+                        <div class="stats-row">
+                            <div class="stat-item stat-success">
+                                <span class="stat-value" id="radarCount">0</span>
+                                <span class="stat-label">On Radar</span>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary" id="refreshRadarBtn">
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                                </svg>
+                                Refresh Radar
+                            </button>
+                        </div>
+                        <div class="radar-list" id="radarList">
+                            <div class="empty-state">
+                                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                                <p>No stocks on radar yet</p>
+                                <p class="empty-hint">Start screening to detect breakout signals</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Stock List Modal -->
+    <div class="modal" id="stockListModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Initialized Stocks</h3>
+                <button class="modal-close" id="closeModal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="stockListContent">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

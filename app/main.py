@@ -3,7 +3,10 @@ Main FastAPI application for Stock Screener.
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 import logging
+import os
 from app.config import settings
 from app.api.routes import router
 
@@ -36,6 +39,12 @@ app.add_middleware(
 # Include routers
 app.include_router(router, prefix="/api/v1", tags=["screener"])
 
+# Mount static files for frontend
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+    logger.info(f"Frontend directory mounted: {FRONTEND_DIR}")
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -66,14 +75,19 @@ async def shutdown_event():
 
 @app.get("/")
 async def root():
-    """Root endpoint."""
-    return {
-        "app": settings.APP_NAME,
-        "version": settings.APP_VERSION,
-        "status": "running",
-        "docs": "/docs",
-        "api": "/api/v1"
-    }
+    """Serve the frontend UI."""
+    index_path = os.path.join(FRONTEND_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    else:
+        # Fallback to API info if frontend not available
+        return {
+            "app": settings.APP_NAME,
+            "version": settings.APP_VERSION,
+            "status": "running",
+            "docs": "/docs",
+            "api": "/api/v1"
+        }
 
 
 @app.get("/health")
