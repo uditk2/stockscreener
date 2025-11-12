@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from app.services.redis_service import RedisService
 from app.services.stock_fetcher import IndianStockFetcher
 from app.services.yfinance_service import YFinanceService
-from app.services.technical_indicators import TechnicalIndicatorService
+from app.services.indicators import TechnicalIndicatorService
 from app.services.llm_service import LLMBreakoutService
 from app.services.radar_queue import RadarQueueService
 
