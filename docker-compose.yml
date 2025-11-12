@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Redis Service
+  redis:
+    image: redis:7-alpine
+    container_name: stockscreener-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stockscreener-network
+
+  # Stock Screener API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stockscreener-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Application Settings
+      - APP_NAME=Stock Screener
+      - APP_VERSION=1.0.0
+      - DEBUG=false
+
+      # Redis Configuration
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+
+      # Rate Limiting
+      - YFINANCE_REQUESTS_PER_MINUTE=2000
+      - YFINANCE_DELAY_BETWEEN_REQUESTS=0.5
+
+      # LLM Configuration (Optional - set your API key)
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - LLM_MODEL=gpt-4
+      - LLM_API_URL=https://api.openai.com/v1/chat/completions
+
+      # Data Configuration
+      - HISTORICAL_DATA_YEARS=2
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+    networks:
+      - stockscreener-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  stockscreener-network:
+    driver: bridge
