@@ -253,7 +253,7 @@ function renderStockList(stocks) {
     content.innerHTML = `
         <div class="stock-grid">
             ${stocks.map(stock => `
-                <div class="stock-chip">${stock}</div>
+                <div class="stock-chip">${stock.name || stock.symbol}</div>
             `).join('')}
         </div>
     `;
